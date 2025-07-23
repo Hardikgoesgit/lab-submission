@@ -60,10 +60,7 @@
             box-shadow: 0 2px 8px rgba(58,123,213,0.08);
             transition: background 0.2s, transform 0.2s;
         }
-        input[type="submit"]:hover {
-            background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
-            transform: translateY(-2px) scale(1.03);
-        }
+        /* Removed the hover effect for submit button */
     </style>
 </head>
 <body>
@@ -76,7 +73,7 @@
         <input type="email" id="email" name="email" required><br><br>
 
         <label for="age">Age:</label><br>
-        <input type="number" id="age" name="age" min="1" required><br><br>
+        <input type="number" id="age" name="age" min="5" max="100" required><br><br>
 
         <input type="submit" value="Register">
     </form>
