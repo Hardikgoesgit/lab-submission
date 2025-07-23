@@ -1,26 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Student Registration Form</title>
+    <title>STUDENT REGISTRATION FORM</title>
     <style>
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            font-family: 'Roboto';
         }
         form {
             text-align: center;
+            background: #fff;
+            padding: 32px 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            min-width: 320px;
+            max-width: 400px;
+            width: 100%;
+        }
+        h2 {
+            color: #a75630;
+            margin-bottom: 24px;
+            font-size: 2em;
+        }
+        label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 6px;
+            display: block;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="number"] {
+            width: 90%;
+            padding: 8px 12px;
+            margin: 8px 0 16px 0;
+            border: 1px solid #bfc9d4;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus {
+            border-color: #3a7bd5;
+            outline: none;
+        }
+        input[type="submit"] {
+            background: #3a7bd5;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 28px;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(58,123,213,0.08);
+            transition: background 0.2s, transform 0.2s;
+        }
+        input[type="submit"]:hover {
+            background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
+            transform: translateY(-2px) scale(1.03);
         }
     </style>
 </head>
 <body>
     <form>
-        <h2>Student Registration Form</h2>
-        <label for="name">Name:</label><br>
+        <h2>STUDENT REGISTRATION FORM</h2>
+        <label for="name">Name of the STUDENT:</label><br>
         <input type="text" id="name" name="name" required><br><br>
 
-        <label for="email">Email:</label><br>
+        <label for="email">College Email:</label><br>
         <input type="email" id="email" name="email" required><br><br>
 
         <label for="age">Age:</label><br>
