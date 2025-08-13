@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SVG Drawing Tool</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  .wrap { border:2px solid #666; padding: 14px; max-width: 800px; }
+  h2 { margin-top:0; }
+  .toolbar {
+    display:flex; gap:8px; align-items:center; margin-bottom:10px;
+  }
+  .toolbar select, .toolbar button {
+    padding:6px 8px; border:1px solid #ccc; border-radius:6px;
+  }
+  .toolbar button:hover { background:#eee; cursor:pointer; }
+  .stage {
+    border:2px solid #777; background:#f3f3f3; width:100%; aspect-ratio: 16/9;
+  }
+  .noselect { user-select:none; -webkit-user-select:none; }
+</style>
+</head>
+<body class="noselect">
+  <div class="wrap">
+    <h2>SVG Drawing Tool</h2>
+
+    <div class="toolbar">
+      <label>Tool:
+        <select id="tool">
+          <option value="pen">Freehand</option>
+          <option value="line">Line</option>
+          <option value="rect">Rectangle</option>
+          <option value="ellipse">Ellipse</option>
+        </select>
+      </label>
+      <button id="undoBtn">Undo</button>
+      <button id="clearBtn">Clear</button>
+    </div>
+
+    <svg id="board" class="stage" viewBox="0 0 1000 562" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+<script>
+(() => {
+  const svg = document.getElementById('board');
+  const toolSel = document.getElementById('tool');
+  const undoBtn = document.getElementById('undoBtn');
+  const clearBtn = document.getElementById('clearBtn');
+
+  let isDrawing = false;
+  let start = {x:0, y:0};
+  let currentEl = null;
+  const history = [];
+
+  function toSvgPoint(evt) {
+    const pt = svg.createSVGPoint();
+    const c = (evt.touches && evt.touches[0]) ? evt.touches[0] : evt;
+    pt.x = c.clientX;
+    pt.y = c.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  function begin(evt) {
+    evt.preventDefault();
+    isDrawing = true;
+    const p = toSvgPoint(evt);
+    start = {x: p.x, y: p.y};
+    const stroke = "#2185d0";
+    const sw = 3;
+    const tool = toolSel.value;
+
+    if (tool === 'pen') {
+      currentEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      currentEl.setAttribute('d', `M ${start.x} ${start.y}`);
+      currentEl.setAttribute('fill', 'none');
+    } else if (tool === 'line') {
+      currentEl = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      currentEl.setAttribute('x1', start.x);
+      currentEl.setAttribute('y1', start.y);
+      currentEl.setAttribute('x2', start.x);
+      currentEl.setAttribute('y2', start.y);
+    } else if (tool === 'rect') {
+      currentEl = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      currentEl.setAttribute('x', start.x);
+      currentEl.setAttribute('y', start.y);
+      currentEl.setAttribute('width', 0);
+      currentEl.setAttribute('height', 0);
+      currentEl.setAttribute('fill', 'none');
+    } else if (tool === 'ellipse') {
+      currentEl = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+      currentEl.setAttribute('cx', start.x);
+      currentEl.setAttribute('cy', start.y);
+      currentEl.setAttribute('rx', 0);
+      currentEl.setAttribute('ry', 0);
+      currentEl.setAttribute('fill', 'none');
+    }
+
+    currentEl.setAttribute('stroke', stroke);
+    currentEl.setAttribute('stroke-width', sw);
+    currentEl.setAttribute('stroke-linecap','round');
+    currentEl.setAttribute('stroke-linejoin','round');
+
+    svg.appendChild(currentEl);
+  }
+
+  function move(evt) {
+    if (!isDrawing || !currentEl) return;
+    const p = toSvgPoint(evt);
+    const tool = toolSel.value;
+
+    if (tool === 'pen') {
+      currentEl.setAttribute('d', currentEl.getAttribute('d') + ` L ${p.x} ${p.y}`);
+    } else if (tool === 'line') {
+      currentEl.setAttribute('x2', p.x);
+      currentEl.setAttribute('y2', p.y);
+    } else if (tool === 'rect') {
+      const x = Math.min(start.x, p.x);
+      const y = Math.min(start.y, p.y);
+      const w = Math.abs(p.x - start.x);
+      const h = Math.abs(p.y - start.y);
+      currentEl.setAttribute('x', x);
+      currentEl.setAttribute('y', y);
+      currentEl.setAttribute('width', w);
+      currentEl.setAttribute('height', h);
+    } else if (tool === 'ellipse') {
+      currentEl.setAttribute('rx', Math.abs(p.x - start.x));
+      currentEl.setAttribute('ry', Math.abs(p.y - start.y));
+    }
+  }
+
+  function end() {
+    if (!isDrawing) return;
+    isDrawing = false;
+    if (currentEl) {
+      history.push(currentEl);
+      currentEl = null;
+    }
+  }
+
+  svg.addEventListener('mousedown', begin);
+  svg.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  svg.addEventListener('touchstart', begin, {passive:false});
+  svg.addEventListener('touchmove', move, {passive:false});
+  window.addEventListener('touchend', end);
+
+  undoBtn.addEventListener('click', () => {
+    const el = history.pop();
+    if (el) svg.removeChild(el);
+  });
+
+  clearBtn.addEventListener('click', () => {
+    while (history.length) svg.removeChild(history.pop());
+  });
+})();
+</script>
+</body>
+</html>
